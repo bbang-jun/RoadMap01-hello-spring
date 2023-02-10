@@ -35,4 +35,8 @@ public class MemoryMemberRepository implements MemberRepository{
         // store의 values는 Map<Long, Member>의 values이므로 Member이다.
         return new ArrayList<>(store.values());
     }
+
+    public void clearStore(){
+        store.clear();
+    }
 }

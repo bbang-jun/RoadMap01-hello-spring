@@ -1,10 +1,12 @@
 package hello.hellospring.service;
 
 import hello.hellospring.domain.Member;
+import hello.hellospring.repository.MemberRepository;
 import hello.hellospring.repository.MemoryMemberRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,28 +14,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // MemberServiceTest를 통합 테스트로 리팩토링
-@SpringBootTest
-@Transactional
+@SpringBootTest // 통합 테스트
+@Transactional // 롤백 기능
 class MemberServiceIntegrationTest {
 
-    MemberService memberService;
-    MemoryMemberRepository memberRepository;
-
-    @BeforeEach
-    public void beforeEach(){
-        memberRepository = new MemoryMemberRepository();
-        memberService = new MemberService(memberRepository);
-    }
-    @AfterEach
-    public void afterEach(){
-        memberRepository.clearStore();
-    }
+    // @BeforeEach로 di 하는 방법 대신 필드 객체 주입 방식 사용
+    @Autowired MemberService memberService;
+    // MemorMemberRepository -> MemberRepository (구현체는 스프링이 configuration 한 곳에서 올려줌)
+    @Autowired
+    MemberRepository memberRepository;
 
     @Test
     void 회원가입() {
         // given(뭔가가 주어져서)
         Member member = new Member();
-        member.setName("hello");
+        member.setName("spring");
 
         // when(실행했을 때)
         long saveId = memberService.join(member);
@@ -57,14 +52,6 @@ class MemberServiceIntegrationTest {
         IllegalStateException e = assertThrows(IllegalStateException.class, () -> memberService.join(member2));
 
         assertThat(e.getMessage()).isEqualTo("이미 존재하는 회원입니다.");
-//        try{
-//            memberService.join(member2);
-//            fail();
-//        } catch (IllegalArgumentException e){
-//            assertThat(e.getMessage()).isEqualTo("이미 존재하는 회원입니다.");
-//        }
-
-        // then
     }
 
     @Test

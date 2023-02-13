@@ -21,18 +21,25 @@ public class JpaMemberRepository implements MemberRepository{
         return member;
     }
 
+    // id 조회
     @Override
     public Optional<Member> findById(Long id) {
-        return Optional.empty();
+        Member member = em.find(Member.class, id); // 조회할 타입, pk 식별자
+        return Optional.ofNullable(member); // 값이 없을 수도 있어서 ofNullable
     }
 
     @Override
     public Optional<Member> findByName(String name) {
-        return Optional.empty();
+        List<Member> result = em.createQuery("select m from Member m where m.name = :name", Member.class)
+                .setParameter("name", name)
+                .getResultList();
+
+        return result.stream().findAny();
     }
 
     @Override
     public List<Member> findAll() {
-        return null;
+        return em.createQuery("select m from Member m", Member.class)
+                .getResultList();
     }
 }
